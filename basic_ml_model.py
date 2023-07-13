@@ -18,7 +18,7 @@ def get_data():
     except Exception as e:
         raise e
     
-def evaluate(y_true,y_pred):
+def evaluate(y_true,y_pred,pred_prob):
     '''mae=mean_absolute_error(y_true, y_pred)
     mse=mean_squared_error(y_true,y_pred)
     rmse=np.sqrt( mean_squared_error(y_true,y_pred))
@@ -26,7 +26,10 @@ def evaluate(y_true,y_pred):
 
     return mae,mse,rmse,r2'''
     accuracy=accuracy_score(y_true,y_pred)
-    return accuracy
+    roc_auc_score=roc_auc_score(y_true,pred_prob,multi_class='ovr')
+    return accuracy,roc_auc_score
+
+
 def main(n_estimators,max_depth):
     data=get_data()
     train,test=train_test_split(data)
@@ -39,17 +42,25 @@ def main(n_estimators,max_depth):
     '''lr=ElasticNet()
     lr.fit(X_train,y_train)
     pred=lr.predict(X_test)'''
-    
-    rf=RandomForestClassifier(n_estimators=n_estimators,max_depth=max_depth)
-    rf.fit(X_train,y_train)
-    pred=rf.predict(X_test)
+    with mlflow.start_run():
+        rf=RandomForestClassifier(n_estimators=n_estimators,max_depth=max_depth)
+        rf.fit(X_train,y_train)
+        pred=rf.predict(X_test)
+        pred_prob=rf.predict_proba(X_test)
 
-    #evaluate the model
-    '''mae,mse,rmse,r2=evaluate(y_test,pred)
-    print(f"mean absolute error {mae}, mean squared error {mse}, root mean squared error {rmse}, r2-score {r2}")'''
+        #evaluate the model
+        '''mae,mse,rmse,r2=evaluate(y_test,pred)
+        print(f"mean absolute error {mae}, mean squared error {mse}, root mean squared error {rmse}, r2-score {r2}")'''
 
-    accuracy=evaluate(y_test,pred)
-    print(f"accuracy score {accuracy}")
+        accuracy,roc_auc_score=evaluate(y_test,pred,pred_prob)
+        mlflow.log_param("n_estimators",n_estimators)
+        mlflow.log_param("max_depth",max_depth)
+        mlflow.log_metric("accuracy",accuracy)
+        mlflow.log_metric("roc_auc_curve",roc_auc_score)
+        print(f"accuracy score {accuracy}")
+
+
+
 if __name__=='__main__':
     args=argparse.ArgumentParser()
     args.add_argument("--n_estimators", "-n", default=50, type=int)
