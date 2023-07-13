@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/DELL/mlflow/mlruns/0/2fe06e20d38e4fa3bf83f4035a7ca696/artifacts
+end_time: 1689235546806
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2fe06e20d38e4fa3bf83f4035a7ca696
+run_name: nebulous-skunk-820
+run_uuid: 2fe06e20d38e4fa3bf83f4035a7ca696
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1689235546515
+status: 3
+tags: []
+user_id: DELL
